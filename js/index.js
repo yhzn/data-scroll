@@ -91,13 +91,13 @@ var app=new Vue({
         downDataTimeRefresh:0, // 下数据库数据刷新
         unusualTimeRefresh:0, // 异常信息数据刷新
         serverTimeRefresh:0,
-
+        oddNum:false,
 
 },
     mounted:function(){
         var _this=this;
         var weekArray = new Array("星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六");
-        this.day = weekArray[new Date().getDay()];
+        this.day = weekArray[new Date().getDay()]
         var getDate=new Date();
         this.year=getDate.getFullYear();
         this.month=getDate.getMonth()+1 <10 ?"0"+(getDate.getMonth()+1):getDate.getMonth()+1;
@@ -185,6 +185,12 @@ var app=new Vue({
                 }
         },
         animation:function(){
+            if(this.oddNum){
+                this.weight=1;
+            }else{
+                this.weight=2;
+            }
+
             // 刷新时间
             this.timeCount++;
             if(this.timeCount>=60*10){
@@ -198,18 +204,17 @@ var app=new Vue({
                 this.serverTimeRefresh=0;
 
             }
-            if(this.SystemDBBaseLength!==0 && this.serverTimeRefresh>=60*this.refreshTime*this.SystemDBBaseLength){
+            if(this.SystemDBBaseLength!==0 && this.serverTimeRefresh>=60*this.refreshTime*this.SystemDBBaseLength*this.weight){
                 this.getServer();
                 this.serverTimeRefresh=0;
             }
             // 刷新数据 十秒刷新一侧
             this.allDataRefresh++;
-            if(this.allDataRefresh>=60*this.refreshTime){
+            if(this.allDataRefresh>=60*this.refreshTime*this.weight){
                 console.log(this.SystemDBBaseLength)
                 if(this.SystemDBBaseLength>=3){
                    this.dataRefresh();
                 }
-
                 // 服务器数据刷新
                 this.allDataRefresh=0;
 
@@ -222,7 +227,7 @@ var app=new Vue({
             }
             // 上数据库数据刷新
             this.upDataTimeRefresh++;
-            if(this.upServerIdArrLength!==0 && this.upDataTimeRefresh>=60*parseInt(this.refreshTime/this.upServerIdArrLength)){
+            if(this.upServerIdArrLength!==0 && this.upDataTimeRefresh>=60*parseInt((this.refreshTime*this.weight)/this.upServerIdArrLength)){
                 if(this.upServerIdArrLength!==1) {
                     this.upDataBaseRefresh();
                 }
@@ -231,7 +236,7 @@ var app=new Vue({
             }
             // 下数据库数据刷新
             this.downDataTimeRefresh++;
-            if(this.downServerIdArrLength!==0 && this.downDataTimeRefresh>=60*parseInt(this.refreshTime/this.downServerIdArrLength)){
+            if(this.downServerIdArrLength!==0 && this.downDataTimeRefresh>=60*parseInt((this.refreshTime*this.weight)/this.downServerIdArrLength)){
                 if(this.downServerIdArrLength!==1) {
                     this.downDataBaseRefresh();
                 }
@@ -387,6 +392,13 @@ var app=new Vue({
 
                         }
                         _this.getDataBase(dom,data.Infos[0].SysNo);
+                    }else{
+                        if(dom==="upDataBase"){
+                            _this.upServerIdArrLength=0;
+                        }else{
+                            _this.downServerIdArrLength=0;
+
+                        }
                     }
                 },
                 error:function(err){
@@ -405,6 +417,7 @@ var app=new Vue({
                     UserId: 2
                 },
                 success:function(data){
+                    _this.oddNum=false;
                     // 服务器列表
                     if(data.Infos.length===1){
                         _this.upSystemIp=data.Infos[0].SystemIpAddress;
@@ -426,6 +439,7 @@ var app=new Vue({
                         if(data.Infos.length%2===0){
                             _this.SystemDBBase=data.Infos;
                         }else{
+                            _this.oddNum=true;
                             _this.SystemDBBase=[...data.Infos,...data.Infos];
                         }
                         _this.SystemDBBaseLength=_this.SystemDBBase.length;
