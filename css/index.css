@@ -1,0 +1,303 @@
+html,body,#app{
+    width:100%;
+    height:100%;
+}
+#app{
+    background: linear-gradient(#004ba8,#010d63);
+    overflow: hidden;
+}
+.header{
+    display: flex;
+    height: 38px;
+    margin-bottom: 20px;
+    align-items: center;
+    color:#3aebf1;
+    background:#003a7a;
+}
+.header h3{
+    flex-grow: 1;
+    margin-left: 198px;
+    font-size: 22px;
+    text-align: center;
+}
+.header div{
+    margin-right: 20px;
+    font-size: 16px;
+}
+.main{
+    height:calc(100vh - 58px);
+    overflow: hidden;
+}
+.right-container{
+    float: right;
+    width:210px;
+    height:calc(100% - 20px);
+    margin-right: 10px;
+    box-sizing: border-box;
+    border:1px solid #6eaae8;
+    border-radius: 5px;
+    overflow: hidden;
+}
+.right-container h3{
+    height:28px;
+    line-height: 28px;
+    text-align: center;
+    background:linear-gradient(to right,#102a87,#3989e8,#153896);
+    color:#ffffff;
+}
+.right-container .err-list{
+    height:calc(100% - 28px);
+    overflow: hidden;
+}
+.right-container .list{
+    padding:10px 0;
+    /*animation:move 10s infinite;*/
+}
+/*@keyframes move*/
+/*{*/
+    /*from {margin-top: 0;}*/
+    /*to {margin-top: -500px;}*/
+/*}*/
+
+
+.right-container ul li{
+    margin:0 10px 10px;
+    height: 26px;
+    line-height: 26px;
+    color:#f4f250;
+    text-align: center;
+    border-radius: 3px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    background: linear-gradient(#1f57b4,#255bb3);
+
+}
+.right-container ul li:first-child{
+    display: flex;
+    align-items: center;
+    padding:0 10px;
+    margin:0 0 10px;
+    height:30px;
+    text-align: left;
+    color:#d9e2f1;
+    overflow: hidden;
+    background: linear-gradient(#499aeb,#227ee5);
+}
+.right-container ul li:first-child p{
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+.right-container ul li:first-child p:first-child{
+    flex-grow: 1;
+}
+.left-container{
+    margin-right: 220px;
+    height:100%;
+}
+.chart-container{
+    height:50%;
+    margin: 0 10px;
+    box-sizing: border-box;
+}
+.chart-container .title{
+    position: relative;
+    /*overflow: hidden;*/
+    height:28px;
+    width:405px;
+    border-left: 1px solid #3bfedc;
+    border-top: 1px solid #3bfedc;
+    background: linear-gradient(#2b68b8,#2a69b8);
+    padding-left:10px;
+    line-height: 28px;
+    font-size: 16px;
+    color:#ffffff;
+}
+.chart-container .title span{
+    margin-right: 30px;
+}
+.chart-container .title span:last-child{
+    position: absolute;
+    width:15px;
+    height:100%;
+    transform:skew(30deg,0deg);
+    top:0;
+    right:-38px;
+    background: linear-gradient(#2b68b8,#2a69b8);
+    border-right: 1px solid #3bfedc;
+}
+.chart{
+    height:calc(100% - 50px);
+    border:1px solid #6eaae8;
+    border-radius: 0 5px 5px 5px;
+
+}
+.chart-left,.chart-right,.tip{
+    width:calc(50% - 80px);
+    height:100%;
+    overflow: hidden;
+}
+.chart-left{
+    float: left;
+}
+.chart-right{
+    float: right;
+}
+.tip{
+    padding-top:20px;
+    height:calc(100% - 20px);
+    width:160px;
+    margin: 0 auto;
+}
+.mark{
+    position: relative;
+    border-top: 1px solid transparent;
+    margin-bottom: 20px;
+    z-index: 30;
+}
+.mark .mark-title{
+    float: left;
+    margin-left: 16px;
+    padding: 5px 15px;
+    border-radius: 15px 0;
+    box-shadow: 0 0 12px #17d0ee;
+    color:#bec68a;
+    border:1px solid #17d0ee;
+    background: linear-gradient(#0f74a8,#1468a4);
+}
+.mark:nth-child(even) .mark-title{
+    float: right;
+    margin-right: 16px;
+    margin-left: 0;
+    border-radius: 0 15px;
+}
+.mark .border:after{
+    content: " ";
+    position: absolute;
+    width:100px;
+    height:65px;
+    top:10px;
+    border:1px solid #1bd8fe;
+    z-index: -10;
+
+}
+.mark:nth-child(odd) .border:after{
+    right: 0;
+    border-left:none;
+}
+.mark:nth-child(even) .border:after{
+    left:0;
+    border-right:none;
+}
+.mark .mark-list{
+    position: relative;
+    margin: 38px auto 0;
+    padding:10px 0;
+    width: 130px;
+    background:#0e2a7e;
+}
+.mark .mark-list:after,.mark .mark-list:before,.mark .mark-list li:first-child:after,.mark .mark-list li:first-child:before{
+    position: absolute;
+    content: " ";
+    width:6px;
+    height:6px;
+    bottom: 0;
+}
+.mark .mark-list:after{
+
+    right:0;
+    border-right:1px solid #43c0f0;
+    border-bottom:1px solid #43c0f0;
+
+}
+.mark .mark-list:before{
+    border-left:1px solid #43c0f0;
+    border-bottom:1px solid #43c0f0;
+
+}
+.mark .mark-list li{
+    padding:3px 2px 3px 25px;
+    color:#ffffff;
+    align-items: center;
+
+
+}
+.mark .mark-list li:first-child:after{
+    top:0;
+    right:0;
+    border-right:1px solid #43c0f0;
+    border-top:1px solid #43c0f0;
+}
+.mark .mark-list li:first-child:before{
+    top:0;
+    left:0;
+    border-top:1px solid #43c0f0;
+    border-left:1px solid #43c0f0;
+}
+.mark .mark-list li span:before{
+    position: absolute;
+    content: " ";
+    width:12px;
+    height:12px;
+    left: 8px;
+    border-radius: 100%;
+    background: #f9ac0e;
+}
+.mark .mark-list li:nth-child(2) span:before{
+
+    background: #29fffb;
+}
+.mark .mark-list li:nth-child(3) span:before{
+
+    background: #ec6961;
+}
+.mark .mark-list li:nth-child(4) span:before{
+
+    background: #faff37;
+}
+.mark .mark-list li:nth-child(5) span:before{
+
+    background: #bb9dff;
+}
+.mark .mark-list li:nth-child(6) span:before{
+
+    background: #4bfe5a;
+}
+.mark .mark-list li:nth-child(7) span:before{
+
+    background: #edde05;
+}
+.mark .mark-list li span:last-child{
+    flex-grow: 1;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+.warn{
+    box-sizing: border-box;
+    border:1px solid red;
+    border-radius: 0 0 0 5px;
+    box-shadow: inset 0 0 0 red;
+    animation: warn 1s ease-out infinite;
+}
+@keyframes warn {
+    0% {
+        box-shadow: inset 0 0 3px #ff0000;
+    }
+    20% {
+        box-shadow: inset 0 0 12px #ff0000;
+    }
+    40% {
+        box-shadow: inset 0 0 22px #ff0000;
+    }
+    60% {
+        box-shadow: inset 0 0 38px #ff0000;
+    }
+    80% {
+        box-shadow: inset 0 0 28px #ff0000;
+    }
+    100% {
+        box-shadow: inset 0 0 12px #ff0000;
+    }
+}

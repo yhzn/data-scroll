@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/index.css">
+    <script src="jquery.js"></script>
+    <script src="echarts.js"></script>
+    <script src="vue.js"></script>
+</head>
+<body>
+<div id="app">
+    <div class="header">
+        <h3>智能监控服务平台展示</h3>
+        <div>
+            {{year}}/{{month}}/{{date}}
+            <span>{{day}}</span>
+            {{hours}}:{{minutes}}
+        </div>
+    </div>
+    <div class="main clearfix">
+       <div class="right-container">
+           <h3>异常警示信息</h3>
+           <div class="err-list" ref="unusualCon">
+               <div class="list" ref="unusual">
+                   <ul v-for="item in unusual">
+                       <li>
+                           <p>{{item.SystemName}}</p>
+                           <p>{{item.SystemIpAddress}}</p>
+                       </li>
+                       <!--<li v-if="item.DicName">{{item.DicName}}</li>-->
+                       <li v-if="item.ShowMsg">{{item.ShowMsg}}</li>
+                       <li v-if="item.WarningValue">{{item.WarningValue}}</li>
+                       <li v-if="item.WarningMsg">{{item.WarningMsg}}</li>
+                       <li v-if="item.TypeName">{{item.TypeName}}</li>
+                   </ul>
+               </div>
+           </div>
+       </div>
+       <div class="left-container">
+           <div class="chart-container">
+               <div class="title">
+                   <span>{{upSystemIp}}</span>
+                   <span>{{upSystemName}}</span>
+                   <span>Windows操作系统</span>
+                   <span></span>
+               </div>
+               <div class="chart">
+                   <div class="chart-left warn" ref="upServer"></div>
+                   <div class="chart-right" ref="upDataBase"></div>
+                   <div class="tip">
+                       <div class="mark clearfix">
+                           <div class="mark-title border">
+                               服务器标识
+                           </div>
+                           <ul class="mark-list border">
+                               <li><span>CPU使用率</span></li>
+                               <li><span>内存使用率</span></li>
+                               <li v-for="item in upDisk">
+                                   <span>{{item}}使用率</span>
+                               </li>
+                           </ul>
+                       </div>
+                       <div class="mark clearfix" v-if="upDBName">
+                           <div class="mark-title border">
+                               {{upDBName}}
+                           </div>
+                           <ul class="mark-list">
+                               <li><span>内存</span></li>
+                               <li><span>连接数</span></li>
+                               <li><span>占用空间</span></li>
+                           </ul>
+                       </div>
+                   </div>
+               </div>
+           </div>
+           <div class="chart-container">
+               <div class="title">
+                   <span>{{downSystemIp}}</span>
+                   <span>{{downSystemName}}</span>
+                   <span>Windows操作系统</span>
+                   <span></span>
+               </div>
+               <div class="chart">
+                   <div class="chart-left" ref="downServer"></div>
+                   <div class="chart-right" ref="downDataBase"></div>
+                   <div class="tip">
+                       <div class="mark clearfix">
+                           <div class="mark-title border">
+                               服务器标识
+                           </div>
+                           <ul class="mark-list border">
+                               <li><span>CPU使用率</span></li>
+                               <li><span>内存使用率</span></li>
+                               <li v-for="item in downDisk">
+                                   <span>{{item}}使用率</span>
+                               </li>
+                           </ul>
+                       </div>
+                       <div class="mark clearfix" v-if="downDBName">
+                           <div class="mark-title border">
+                               {{downDBName}}
+                           </div>
+                           <ul class="mark-list">
+                               <li><span>内存</span></li>
+                               <li><span>连接数</span></li>
+                               <li><span>占用空间</span></li>
+                           </ul>
+                       </div>
+                   </div>
+               </div>
+           </div>
+       </div>
+    </div>
+</div>
+</body>
+<script src="js/index.js"></script>
+</html>
