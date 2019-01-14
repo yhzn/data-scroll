@@ -44,6 +44,20 @@ var  option={
     yAxis: [],
     series: []
 };
+var nullOption={
+    title:{
+        text:"无异常",
+        left:"center",
+        top:"30%",
+        textStyle:{//标题内容的样式
+            fontSize:"38",
+            color:'#13b63a',//京东红
+            fontStyle:'normal',//主标题文字字体风格，默认normal，有italic(斜体),oblique(斜体)
+            // fontWeight:"lighter",//可选normal(正常)，bold(加粗)，bolder(加粗)，lighter(变细)，100|200|300|400|500...
+            fontFamily:"san-serif",//主题文字字体，默认微软雅黑
+        },
+    }
+}
 var app=new Vue({
     el:'#app',
     data:{
@@ -92,7 +106,10 @@ var app=new Vue({
         unusualTimeRefresh:0, // 异常信息数据刷新
         serverTimeRefresh:0,
         oddNum:false,
-
+        unusualFlag:true,
+        unusualTemp:[],
+        upWarning:0,
+        downWarning:0,
 },
     mounted:function(){
         var _this=this;
@@ -116,6 +133,15 @@ var app=new Vue({
 
         this.unusualConHeight=this.$refs.unusualCon.offsetHeight;
         window.requestAnimationFrame(this.animation);
+        // if(!!this.setTimer){
+        //     clearTimeout(this.setTimer);
+        // }
+        // this.setTimer=setTimeout(this.animation,1000/60);
+        document.onkeyup=function(e){
+            if(e.keyCode===122){
+                window.location.reload();
+            }
+        }
         window.onresize=function(){
             _this.upServer.resize();
             _this.upDataBase.resize();
@@ -145,46 +171,47 @@ var app=new Vue({
             if(this.minutes!==minutes){
                 this.hours=getDate.getHours()<10 ? "0"+getDate.getHours():getDate.getHours();
                 this.minutes=minutes;
-                if(this.hours==="02" && (this.minutes === "00" || this.minutes==="01")){
+                if((this.hours==="00"||this.hours==="06") && (this.minutes === "00" || this.minutes==="01")){
                     window.location.reload();
                 }
             }
         },
         dataRefresh:function(){
+            if(this.showSystemNum>=this.SystemDBBaseLength-1){
+                this.showSystemNum=0;
+            }
+            this.upWarning=this.SystemDBBase[this.showSystemNum].Warning;
             this.upSystemIp=this.SystemDBBase[this.showSystemNum].SystemIpAddress;
             this.upSystemName=this.SystemDBBase[this.showSystemNum].SystemName;
             this.getData("upServer",this.SystemDBBase[this.showSystemNum].SysNo,"upDisk");
             this.getBase("upDataBase",this.SystemDBBase[this.showSystemNum].SystemIpAddress,"upServerIdArr");
-
             this.showSystemNum=this.showSystemNum+1;
+            this.downWarning=this.SystemDBBase[this.showSystemNum].Warning;
             this.downSystemIp=this.SystemDBBase[this.showSystemNum].SystemIpAddress;
             this.downSystemName=this.SystemDBBase[this.showSystemNum].SystemName;
             this.getData("downServer",this.SystemDBBase[this.showSystemNum].SysNo,"downDisk");
             this.getBase("downDataBase",this.SystemDBBase[this.showSystemNum].SystemIpAddress,"downServerIdArr");
-
             // this.getBase("upDataBase",data.Infos[0].SystemIpAddress,"upServerIdArr");
-            if(this.showSystemNum>=this.SystemDBBaseLength-1){
-                this.showSystemNum=0;
-            }else{
-                this.showSystemNum++;
-            }
+            this.showSystemNum++;
+
         },
         upDataBaseRefresh:function(){
-                this.getDataBase("upDataBase", upServerIdArr[++this.showUpServerNum].SysNo);
-                // this.showUpServerNum
-                if (this.showUpServerNum >= this.upServerIdArrLength - 1) {
-                    this.showUpServerNum = 0;
-                }
-
+            // this.showUpServerNum
+            if (this.showUpServerNum >= this.upServerIdArrLength - 1) {
+                this.showUpServerNum = 0;
+            }
+            this.getDataBase("upDataBase", this.upServerIdArr[this.showUpServerNum++].SysNo);
         },
         downDataBaseRefresh:function(){
-                this.getDataBase("downDataBase", upServerIdArr[++this.showDownServerNum].SysNo);
-                // this.showUpServerNum
-                if (this.showDownServerNum >= this.downServerIdArrLength - 1) {
-                    this.showDownServerNum = 0;
-                }
+            // this.showUpServerNum
+            if (this.showDownServerNum >= this.downServerIdArrLength - 1) {
+                this.showDownServerNum = 0;
+            }
+            this.getDataBase("downDataBase", this.downServerIdArr[this.showDownServerNum++].SysNo);
         },
         animation:function(){
+            // clearTimeout(this.setTimer);
+            // 奇偶数据刷新时间修正
             if(this.oddNum){
                 this.weight=1;
             }else{
@@ -193,42 +220,44 @@ var app=new Vue({
 
             // 刷新时间
             this.timeCount++;
-            if(this.timeCount>=60*10){
+            if(this.timeCount>=60*11){
                 this.timeRefresh();
                 this.timeCount=0;
             }
-            // 服务列表刷新
+            // 服务列表刷新  若无服务器列表数据 每一分钟刷新一次
             this.serverTimeRefresh++;
             if(this.SystemDBBaseLength===0 && this.serverTimeRefresh>60*60){
                 this.getServer();
                 this.serverTimeRefresh=0;
 
             }
-            if(this.SystemDBBaseLength!==0 && this.serverTimeRefresh>=60*this.refreshTime*this.SystemDBBaseLength*this.weight){
+            // 若服务器列表存在数据 数据循环一周后刷新
+            if(this.SystemDBBaseLength!==0 && this.serverTimeRefresh>=30*this.refreshTime*this.SystemDBBaseLength*this.weight){
                 this.getServer();
                 this.serverTimeRefresh=0;
             }
-            // 刷新数据 十秒刷新一侧
+
+            // 服务器数据展示 每 refreshTime 轮播一次
             this.allDataRefresh++;
-            if(this.allDataRefresh>=60*this.refreshTime*this.weight){
-                console.log(this.SystemDBBaseLength)
+            if(this.allDataRefresh>=60*this.refreshTime){
                 if(this.SystemDBBaseLength>=3){
                    this.dataRefresh();
+                    // 上数据库数据刷新
+                    this.upDataTimeRefresh=0;
+
+                    // 下数据库数据刷新
+                    this.downDataTimeRefresh=0;
+
                 }
                 // 服务器数据刷新
                 this.allDataRefresh=0;
 
-                // 上数据库数据刷新
-                this.upDataTimeRefresh=0;
-
-                // 下数据库数据刷新
-                this.downDataTimeRefresh=0;
-
             }
-            // 上数据库数据刷新
+
+            // 上数据库数据刷新 数据多条的情况下 每 this.refreshTime/this.upServerIdArrLength 轮播一次
             this.upDataTimeRefresh++;
-            if(this.upServerIdArrLength!==0 && this.upDataTimeRefresh>=60*parseInt((this.refreshTime*this.weight)/this.upServerIdArrLength)){
-                if(this.upServerIdArrLength!==1) {
+            if(this.upServerIdArrLength!==0 && this.upDataTimeRefresh>=60*parseInt(this.refreshTime/this.upServerIdArrLength)){
+                if(this.upServerIdArrLength>=1) {
                     this.upDataBaseRefresh();
                 }
                 // 上数据库数据刷新
@@ -236,36 +265,51 @@ var app=new Vue({
             }
             // 下数据库数据刷新
             this.downDataTimeRefresh++;
-            if(this.downServerIdArrLength!==0 && this.downDataTimeRefresh>=60*parseInt((this.refreshTime*this.weight)/this.downServerIdArrLength)){
-                if(this.downServerIdArrLength!==1) {
+            if(this.downServerIdArrLength!==0 && this.downDataTimeRefresh>=60*parseInt(this.refreshTime/this.downServerIdArrLength)){
+                if(this.downServerIdArrLength>=1) {
                     this.downDataBaseRefresh();
                 }
                 // 下数据库数据刷新
                 this.downDataTimeRefresh=0;
             }
-
             // 异常信息数据刷新
             this.unusualTimeRefresh++;
-            if(this.unusualTimeRefresh>=60*3600){
-                // this.unusualTimeRefresh>=30*this.refreshTime*this.SystemDBBaseLength
-                this.getUnusual();
+            // 每 this.refreshTime 刷新一次
+            if(this.unusualTimeRefresh>=60*this.refreshTime){
+                // this.unusualTimeRefresh>=60*this.refreshTime*this.SystemDBBaseLength
+                this.getUnusual(true);
                 this.unusualTimeRefresh=0;
             }
-
+            // 数据加倍后 任充不满容器情况
+            if(this.unusualFlag && !!this.unusualDom && parseInt(this.unusualDomHeight)<=parseInt(this.unusualConHeight)){
+                this.unusualFlag=false;
+                this.unusual.splice(0,this.unusualLength/2);
+            }
+            // 数据加倍后 充满容器 但去除重复数据后 未冲满容器情况
             if(!!this.unusualDom && parseInt(this.unusualDomHeight)>parseInt(this.unusualConHeight)){
-                if(parseInt(this.unusualDomHeight/2)<=parseInt(this.unusualConHeight)){
+                if(this.unusualFlag && parseInt(this.unusualDomHeight/2)<=parseInt(this.unusualConHeight)){
+                    this.unusualFlag=false;
                     this.unusual.splice(0,this.unusualLength/2);
-                    return false;
-                }else{
+                }
+                if(parseInt(this.unusualDomHeight/2)>parseInt(this.unusualConHeight)){
                     this.scroll+=this.speed;
                     if(-1*parseInt(this.unusualDom.style.marginTop)>=this.unusualDomHeight/2){
+                        if(this.unusualTemp.length!==0){
+                            // 轮播一周后 更新异常数据
+                            this.unusual=this.unusualTemp;
+                            this.unusualLength=this.unusualTemp.length;
+                            this.unusualTemp=[];
+                            this.unusualFlag=true;
+                        }
                         this.scroll=10+this.speed;
                     }
                     this.unusualDom.style.marginTop=-1*this.scroll+"px";
                 }
-
             }
+
+            // this.setTimer=setTimeout(this.animation,1000/60);
             window.requestAnimationFrame(this.animation);
+
         },
         getDataBase:function(dom,sys){
             var _this=this;
@@ -276,9 +320,11 @@ var app=new Vue({
                     DataBaseSysNo: sys
                 },
                 success:function(data){
-                    console.log(dom)
-                    console.log(data)
                     let upDataBaseOption=clone(option);
+                    if(data.CreateTime.length===0){
+                        _this[dom].setOption(nullOption,true);
+                        return false;
+                    }
                     upDataBaseOption.grid.right="10%";
                     upDataBaseOption.xAxis.data=data.CreateTime;
                     upDataBaseOption.yAxis.push(
@@ -399,6 +445,8 @@ var app=new Vue({
                             _this.downServerIdArrLength=0;
 
                         }
+                        _this[dom].setOption(nullOption,true);
+
                     }
                 },
                 error:function(err){
@@ -422,14 +470,18 @@ var app=new Vue({
                     if(data.Infos.length===1){
                         _this.upSystemIp=data.Infos[0].SystemIpAddress;
                         _this.upSystemName=data.Infos[0].SystemName;
+                        _this.upWarning=data.Infos[0].Warning;
                         _this.getData("upServer",data.Infos[0].SysNo,"upDisk");
                         _this.getBase("upDataBase",data.Infos[0].SystemIpAddress,"upServerIdArr");
                     }
                     if(data.Infos.length>=2){
+                        _this.upWarning=data.Infos[0].Warning;
+                        _this.downWarning=data.Infos[1].Warning;
                         _this.upSystemIp=data.Infos[0].SystemIpAddress;
                         _this.downSystemIp=data.Infos[1].SystemIpAddress;
                         _this.upSystemName=data.Infos[0].SystemName;
                         _this.downSystemName=data.Infos[1].SystemName;
+                        _this.showSystemNum=0;
                         _this.getData("upServer",data.Infos[0].SysNo,"upDisk");
                         _this.getData("downServer",data.Infos[1].SysNo,"downDisk");
                         _this.getBase("upDataBase",data.Infos[0].SystemIpAddress,"upServerIdArr");
@@ -462,6 +514,10 @@ var app=new Vue({
                },
                success:function(data){
                    var upServerOption=clone(option);
+                   if(data.CreateTime.length===0){
+                       _this[dom].setOption(nullOption,true);
+                       return false;
+                   }
                    upServerOption.xAxis.data=data.CreateTime;
                    upServerOption.yAxis.push(
                        {
@@ -508,33 +564,26 @@ var app=new Vue({
                }
            });
        },
-        getUnusual:function(){
+        getUnusual:function(refresh){
             var _this=this;
            $.ajax({
                url:"http://172.31.10.153:6088/json/reply/SearchWarningInfoReq",
                success:function(data){
                    let arr=data.Infos;
-                   _this.unusualDom.style.marginTop="0px";
-                   _this.scroll=0;
-                   _this.unusual=[...arr,...arr];
-                   _this.unusualLength=_this.unusual.length;
+                   if(refresh){
+                       _this.unusualTemp=[...arr,...arr];
+                   }else{
+                       _this.unusualFlag=true;
+                       _this.unusualDom.style.marginTop="0px";
+                       _this.scroll=0;
+                       _this.unusual=[...arr,...arr];
+                       _this.unusualLength=_this.unusual.length;
+                   }
                },
                error:function(err){
                    console.log(err);
                }
            })
-        },
-        height1:function(){
-            this.unusualDom.style.marginTop="0px";
-            this.scroll=0;
-            this.unusual=initHeight_1;
-            this.unusualLength=this.unusual.length;
-        },
-        height2:function(){
-            this.unusualDom.style.marginTop="0px";
-            this.scroll=0;
-            this.unusual=initHeight_2;
-            this.unusualLength=this.unusual.length;
         }
     }
 })

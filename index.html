@@ -27,35 +27,35 @@
            <h3>异常警示信息</h3>
            <div class="err-list" ref="unusualCon">
                <div class="list" ref="unusual">
-                   <ul v-for="item in unusual">
+                   <ul v-for="item in unusual" :class="{'e-warn':item.WarningValue>=70 && item.WarningValue<=90, 'warn':item.WarningValue>90}">
                        <li>
                            <p>{{item.SystemName}}</p>
                            <p>{{item.SystemIpAddress}}</p>
                        </li>
                        <!--<li v-if="item.DicName">{{item.DicName}}</li>-->
                        <li v-if="item.ShowMsg">{{item.ShowMsg}}</li>
-                       <li v-if="item.WarningValue">{{item.WarningValue}}</li>
-                       <li v-if="item.WarningMsg">{{item.WarningMsg}}</li>
-                       <li v-if="item.TypeName">{{item.TypeName}}</li>
+                       <!--<li v-if="item.WarningValue">{{item.WarningValue}}</li>-->
+                       <!--<li v-if="item.WarningMsg">{{item.WarningMsg}}</li>-->
+                       <!--<li v-if="item.TypeName">{{item.TypeName}}</li>-->
                    </ul>
                </div>
            </div>
        </div>
        <div class="left-container">
            <div class="chart-container">
-               <div class="title">
+               <div :class="['title',{'e-warn':upWarning>=7 && upWarning<=9, 'warn':upWarning>9}]">
                    <span>{{upSystemIp}}</span>
                    <span>{{upSystemName}}</span>
                    <span>Windows操作系统</span>
                    <span></span>
                </div>
                <div class="chart">
-                   <div class="chart-left warn" ref="upServer"></div>
+                   <div class="chart-left" ref="upServer"></div>
                    <div class="chart-right" ref="upDataBase"></div>
                    <div class="tip">
                        <div class="mark clearfix">
                            <div class="mark-title border">
-                               服务器标识{{upServerIdArrLength===0?'hidden':'','chart-right'}}
+                               服务器标识
                            </div>
                            <ul class="mark-list border">
                                <li><span>CPU使用率</span></li>
@@ -79,7 +79,7 @@
                </div>
            </div>
            <div class="chart-container">
-               <div class="title">
+               <div  :class="['title',{'e-warn':downWarning>=7 && downWarning<=9, 'warn':downWarning>9}]">
                    <span>{{downSystemIp}}</span>
                    <span>{{downSystemName}}</span>
                    <span>Windows操作系统</span>
@@ -115,6 +115,9 @@
                </div>
            </div>
        </div>
+    </div>
+    <div class="footer">
+        上海延华智能科技（集团）股份有限公司　版权所有 All rights reserved. 沪ICP备：5005972号
     </div>
 </div>
 </body>
